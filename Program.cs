@@ -12,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Newtonsoft;
 using static System.Net.WebRequestMethods;
+using RESTFulBattleShips;
 
 int port = 11000;
 
@@ -192,7 +193,8 @@ async void ContactService(ChatMessage message)
     {
         var chat = new Chat() { Name = message.Name, Message = message.chatMessage};
         var data = new StringContent(JsonConvert.SerializeObject(chat), Encoding.UTF8, "application/json");
-        var res = await client.PostAsync(url, data);
+        var res = await client.PostAsync(url+"/message", data);
+      
 
     }
     catch (Exception)
