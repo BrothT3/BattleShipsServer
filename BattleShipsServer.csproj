@@ -11,4 +11,16 @@
     <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\RESTFulBattleShips\bin\Debug\net6.0\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="RESTASP">
+      <HintPath>..\..\RESTASP\bin\Debug\net6.0\RESTASP.dll</HintPath>
+    </Reference>
+    <Reference Include="RESTFulBattleShips">
+      <HintPath>..\RESTFulBattleShips\bin\Debug\net6.0\RESTFulBattleShips.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

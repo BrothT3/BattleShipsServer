@@ -10,6 +10,8 @@ using System.Text;
 using System.Timers;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+using Newtonsoft;
+using static System.Net.WebRequestMethods;
 
 int port = 11000;
 
@@ -103,12 +105,23 @@ void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
                 JoinMessage recievedJoinedMessage = complexMessage["message"].ToObject<JoinMessage>();
                 HandleJoinMessage(messageSenderInfo, listener, recievedJoinedMessage);
                 break;
+            case MessageType.chatmessage:
+                ChatMessage chatMessage = complexMessage["message"].ToObject<ChatMessage>();
+                //  SendTypedNetworkMessage(listener, groupEP, chatMessage, MessageType.chatmessage);
+                ContactService(chatMessage);
+              //  ContactService(chatMessage.Message);
+                break;
             default:
                 break;
         }
     }
 }
 
+void HandleChatMessage(IPEndPoint messageSenderInfo, UdpClient listener, ChatMessage receivedChatMessage)
+{
+    //Console.WriteLine(receivedChatMessage.chatMessage);
+
+}
 
 void HandleJoinMessage(IPEndPoint messageSenderInfo, UdpClient listener, JoinMessage recievedJoinMessage)
 {
@@ -116,19 +129,24 @@ void HandleJoinMessage(IPEndPoint messageSenderInfo, UdpClient listener, JoinMes
     ballYPos = recievedJoinMessage.ResolutionY / 2;
     resX = recievedJoinMessage.ResolutionX;
     resY = recievedJoinMessage.ResolutionY;
-    var networkMessage = new SetInitialPositionsMessage()
-    {
+    //var networkMessage = new SetInitialPositionsMessage()
+    //{
 
-        ballXPos = recievedJoinMessage.ResolutionX / 2,
-        ballYPos = recievedJoinMessage.ResolutionY / 2,
-        leftPlayerXPos = 0,
-        leftPlayerYPos = recievedJoinMessage.ResolutionY / 2,
-        rightPlayerXPos = recievedJoinMessage.ResolutionX,
-        rightPlayerYPos = recievedJoinMessage.ResolutionY / 2
+    //    ballXPos = recievedJoinMessage.ResolutionX / 2,
+    //    ballYPos = recievedJoinMessage.ResolutionY / 2,
+    //    leftPlayerXPos = 0,
+    //    leftPlayerYPos = recievedJoinMessage.ResolutionY / 2,
+    //    rightPlayerXPos = recievedJoinMessage.ResolutionX,
+    //    rightPlayerYPos = recievedJoinMessage.ResolutionY / 2
+    //};
+
+    var networkMessage = new ChatMessage()
+    {
+        chatMessage = "tester"
     };
 
 
-    SendTypedNetworkMessage(listener, messageSenderInfo, networkMessage, MessageType.initialJoin);
+    SendTypedNetworkMessage(listener, messageSenderInfo, networkMessage, MessageType.join);
     //should actually start when two players have joined...
     timer.Start();
 }
@@ -162,6 +180,38 @@ static void SendTypedNetworkMessage(UdpClient listener, IPEndPoint groupEP, Netw
 
 
 
+
+}
+
+async void ContactService(ChatMessage message)
+{
+    HttpClient client = new HttpClient();
+    string url = "https://localhost:7060/api/chat";
+
+    try
+    {
+        var chat = new Chat() { Name = message.Name, Message = message.chatMessage};
+        var data = new StringContent(JsonConvert.SerializeObject(chat), Encoding.UTF8, "application/json");
+        var res = await client.PostAsync(url, data);
+
+    }
+    catch (Exception)
+    {
+       
+
+    }
+
+    GetChatMessage();
+}
+
+async void GetChatMessage()
+{
+    HttpClient client = new HttpClient();
+    string url = "https://localhost:7060/api/chat";
+
+    var res = await client.GetAsync(url);
+    string responseBody = await res.Content.ReadAsStringAsync();
+    Console.WriteLine(responseBody);
 
 }
 
