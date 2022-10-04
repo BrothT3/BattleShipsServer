@@ -1,7 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 public class Messages
 {
-    public enum MessageType { movement, snapshot, join, initialJoin }
+    public enum MessageType { movement, snapshot, join, initialJoin, chatmessage }
     public enum Direction { up, down }
 
     [Serializable]
@@ -13,7 +13,7 @@ public class Messages
     [Serializable]
     public class NetworkMessageBase
     {
-
+        
     }
     [Serializable]
     public class PlayerMovementUpdate : NetworkMessageBase
@@ -35,6 +35,13 @@ public class Messages
         public string playerName;
         public int ResolutionX;
         public int ResolutionY;
+    }
+
+    [Serializable]
+    public class ChatMessage : NetworkMessageBase
+    {
+        public string chatMessage;
+        public string Name;
     }
 
     [Serializable]
