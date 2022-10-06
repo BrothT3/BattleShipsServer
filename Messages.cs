@@ -1,7 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 public class Messages
 {
-    public enum MessageType { movement, snapshot, join, initialJoin, chatmessage }
+    public enum MessageType { movement, snapshot, join, initialJoin, chatmessage, chatUpdate }
     public enum Direction { up, down }
 
     [Serializable]
@@ -42,6 +42,11 @@ public class Messages
     {
         public string chatMessage;
         public string Name;
+    }
+
+    public class UpdateChat : NetworkMessageBase
+    {
+        public string LastMessage;
     }
 
     [Serializable]

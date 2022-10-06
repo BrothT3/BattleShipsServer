@@ -12,8 +12,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Newtonsoft;
 using static System.Net.WebRequestMethods;
-using BattleShipsServer;
-//using RESTFulBattleShips;
+
 
 int port = 11000;
 
@@ -112,7 +111,10 @@ void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
                 ChatMessage chatMessage = complexMessage["message"].ToObject<ChatMessage>();
                 //  SendTypedNetworkMessage(listener, groupEP, chatMessage, MessageType.chatmessage);
                 ContactService(chatMessage);
-              //  ContactService(chatMessage.Message);
+                //  ContactService(chatMessage.Message);
+                break;
+            case MessageType.chatUpdate:
+                GetChatMessage();
                 break;
             default:
                 break;
@@ -197,29 +199,48 @@ async void ContactService(ChatMessage message)
 
     try
     {
-        //var chat = new Chat() { Name = message.Name, Message = message.chatMessage};
-        //var data = new StringContent(JsonConvert.SerializeObject(chat), Encoding.UTF8, "application/json");
-        //var res = await client.PostAsync(url+"/message", data);
-      
 
+        var chat = new Chat() { Name = message.Name, Message = message.chatMessage };
+        var data = new StringContent(JsonConvert.SerializeObject(chat), Encoding.UTF8, "application/json");
+        var res = await client.PostAsync(url + "/message", data);
+
+
+
+        GetChatMessage();
     }
     catch (Exception)
     {
-       
+
 
     }
 
-    GetChatMessage();
 }
 
 async void GetChatMessage()
 {
+
     HttpClient client = new HttpClient();
     string url = "https://localhost:7060/api/chat";
 
+    var chatMsg = new Chat();
     var res = await client.GetAsync(url);
+
+
+    //string will be in json format
     string responseBody = await res.Content.ReadAsStringAsync();
-    Console.WriteLine(responseBody);
+
+    //desiralize to make it into a .NET object
+    chatMsg = JsonConvert.DeserializeObject<Chat>(responseBody);
+
+    //write out the properties, real function yet to be made
+    Console.WriteLine(chatMsg.Name + ": " + chatMsg.Message);
+
+
+
+
+
+
+
+
 
 }
-
