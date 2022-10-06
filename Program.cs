@@ -113,6 +113,9 @@ void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
                 ContactService(chatMessage);
                 //  ContactService(chatMessage.Message);
                 break;
+            case MessageType.chatUpdate:
+                GetChatMessage();
+                break;
             default:
                 break;
         }
@@ -197,6 +200,7 @@ async void ContactService(ChatMessage message)
         var res = await client.PostAsync(url + "/message", data);
 
 
+        GetChatMessage();
     }
     catch (Exception)
     {
@@ -204,12 +208,11 @@ async void ContactService(ChatMessage message)
 
     }
 
-    GetChatMessage();
 }
 
 async void GetChatMessage()
 {
-    List<Chat> msg = null;
+
     HttpClient client = new HttpClient();
     string url = "https://localhost:7060/api/chat";
 
@@ -217,11 +220,14 @@ async void GetChatMessage()
     var res = await client.GetAsync(url);
 
 
-    //  string responseBody = await res.Content.ReadAsStringAsync();
+    //string will be in json format
     string responseBody = await res.Content.ReadAsStringAsync();
 
+    //desiralize to make it into a .NET object
     chatMsg = JsonConvert.DeserializeObject<Chat>(responseBody);
-    Console.WriteLine(chatMsg);
+
+    //write out the properties, real function yet to be made
+    Console.WriteLine(chatMsg.Name + ": " + chatMsg.Message);
 
 
 
