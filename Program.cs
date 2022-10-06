@@ -12,7 +12,8 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Newtonsoft;
 using static System.Net.WebRequestMethods;
-using RESTFulBattleShips;
+using BattleShipsServer;
+//using RESTFulBattleShips;
 
 int port = 11000;
 
@@ -22,6 +23,7 @@ IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, port);
 float updateInterval = 60;
 System.Timers.Timer timer = new System.Timers.Timer();
 timer.Interval = (double)1000f / updateInterval;
+
 
 //game state, needs to be configured
 int ballXPos = 0;
@@ -69,7 +71,7 @@ void SendingTimer(object? sender, ElapsedEventArgs e)
     //simular to update loop :)
 
     //update ball pos
-
+    GameStateController.Instance.UpdateGameState();
 
     //is ball outside of resolution?? Does somehting happen?
 
@@ -148,8 +150,12 @@ void HandleJoinMessage(IPEndPoint messageSenderInfo, UdpClient listener, JoinMes
 
 
     SendTypedNetworkMessage(listener, messageSenderInfo, networkMessage, MessageType.join);
+    
     //should actually start when two players have joined...
     timer.Start();
+
+    //when playercount is up and good shit's happening
+    GameStateController.Instance.ChangeGameState(Initialize.Instance);
 }
 
 static void SendTypedNetworkMessage(UdpClient listener, IPEndPoint groupEP, NetworkMessageBase networkMessageBase, MessageType messageType)
@@ -191,9 +197,9 @@ async void ContactService(ChatMessage message)
 
     try
     {
-        var chat = new Chat() { Name = message.Name, Message = message.chatMessage};
-        var data = new StringContent(JsonConvert.SerializeObject(chat), Encoding.UTF8, "application/json");
-        var res = await client.PostAsync(url+"/message", data);
+        //var chat = new Chat() { Name = message.Name, Message = message.chatMessage};
+        //var data = new StringContent(JsonConvert.SerializeObject(chat), Encoding.UTF8, "application/json");
+        //var res = await client.PostAsync(url+"/message", data);
       
 
     }
