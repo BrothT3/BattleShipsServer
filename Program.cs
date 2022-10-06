@@ -12,7 +12,8 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using Newtonsoft;
 using static System.Net.WebRequestMethods;
-using RESTFulBattleShips;
+
+
 
 int port = 11000;
 
@@ -110,7 +111,7 @@ void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
                 ChatMessage chatMessage = complexMessage["message"].ToObject<ChatMessage>();
                 //  SendTypedNetworkMessage(listener, groupEP, chatMessage, MessageType.chatmessage);
                 ContactService(chatMessage);
-              //  ContactService(chatMessage.Message);
+                //  ContactService(chatMessage.Message);
                 break;
             default:
                 break;
@@ -191,15 +192,15 @@ async void ContactService(ChatMessage message)
 
     try
     {
-        var chat = new Chat() { Name = message.Name, Message = message.chatMessage};
+        var chat = new Chat() { Name = message.Name, Message = message.chatMessage };
         var data = new StringContent(JsonConvert.SerializeObject(chat), Encoding.UTF8, "application/json");
-        var res = await client.PostAsync(url+"/message", data);
-      
+        var res = await client.PostAsync(url + "/message", data);
+
 
     }
     catch (Exception)
     {
-       
+
 
     }
 
@@ -208,12 +209,26 @@ async void ContactService(ChatMessage message)
 
 async void GetChatMessage()
 {
+    List<Chat> msg = null;
     HttpClient client = new HttpClient();
     string url = "https://localhost:7060/api/chat";
 
+    var chatMsg = new Chat();
     var res = await client.GetAsync(url);
+
+
+    //  string responseBody = await res.Content.ReadAsStringAsync();
     string responseBody = await res.Content.ReadAsStringAsync();
-    Console.WriteLine(responseBody);
+
+    chatMsg = JsonConvert.DeserializeObject<Chat>(responseBody);
+    Console.WriteLine(chatMsg);
+
+
+
+
+
+
+
+
 
 }
-
