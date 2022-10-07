@@ -47,6 +47,7 @@ public class Messages
     public class UpdateChat : NetworkMessageBase
     {
         public string LastMessage;
+        public string Name;
     }
 
     [Serializable]

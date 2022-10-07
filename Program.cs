@@ -24,6 +24,7 @@ System.Timers.Timer timer = new System.Timers.Timer();
 timer.Interval = (double)1000f / updateInterval;
 
 
+
 //game state, needs to be configured
 int ballXPos = 0;
 int ballYPos = 0;
@@ -31,6 +32,7 @@ int ballYPos = 0;
 int resX;
 int resY;
 
+UpdateChat chat = null;
 
 timer.Elapsed += SendingTimer;
 
@@ -46,7 +48,7 @@ void Listening()
         Console.WriteLine($"Listening on port: {port}");
         while (true)
         {
-            Console.WriteLine("Waiting for data..");
+          //  Console.WriteLine("Waiting for data..");
 
             var data = listener.Receive(ref groupEP);
 
@@ -69,8 +71,8 @@ void SendingTimer(object? sender, ElapsedEventArgs e)
 {
     //simular to update loop :)
 
-    //update ball pos
-    GameStateController.Instance.UpdateGameState();
+    
+    //  GameStateController.Instance.UpdateGameState();
 
     //is ball outside of resolution?? Does somehting happen?
 
@@ -79,9 +81,13 @@ void SendingTimer(object? sender, ElapsedEventArgs e)
     //All the actual game logic goes here. Or at least this is the starting point.
 
 
-    SnapShot snapshot = new SnapShot() { ballXpos = ballXPos, ballYpos = ballYPos };
-    SendTypedNetworkMessage(listener, groupEP, snapshot, MessageType.snapshot);
+
+    
+
+    //  SnapShot snapshot = new SnapShot() { ballXpos = ballXPos, ballYpos = ballYPos };
+    //  SendTypedNetworkMessage(listener, groupEP, snapshot, MessageType.snapshot);
 }
+
 
 void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
 {
@@ -109,11 +115,10 @@ void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
                 break;
             case MessageType.chatmessage:
                 ChatMessage chatMessage = complexMessage["message"].ToObject<ChatMessage>();
-                //  SendTypedNetworkMessage(listener, groupEP, chatMessage, MessageType.chatmessage);
                 ContactService(chatMessage);
-                //  ContactService(chatMessage.Message);
                 break;
             case MessageType.chatUpdate:
+                UpdateChat chatUpdate = complexMessage["message"].ToObject<UpdateChat>();
                 GetChatMessage();
                 break;
             default:
@@ -122,9 +127,26 @@ void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
     }
 }
 
-void HandleChatMessage(IPEndPoint messageSenderInfo, UdpClient listener, ChatMessage receivedChatMessage)
+async void HandleChatMessage(IPEndPoint groupEP, UdpClient listener)
 {
-    //Console.WriteLine(receivedChatMessage.chatMessage);
+    HttpClient client = new HttpClient();
+    string url = "https://localhost:7060/api/chat";
+
+    var chatMsg = new Chat();
+    var res = await client.GetAsync(url);
+
+
+    //string will be in json format
+    string responseBody = await res.Content.ReadAsStringAsync();
+
+    //desiralize to make it into a .NET object
+    chatMsg = JsonConvert.DeserializeObject<Chat>(responseBody);
+
+    var chatUpdate = new UpdateChat() { Name = chatMsg.Name, LastMessage = chatMsg.Message };
+
+    SendTypedNetworkMessage(listener, groupEP, chatUpdate, MessageType.chatUpdate);
+
+
 
 }
 
@@ -206,7 +228,7 @@ async void ContactService(ChatMessage message)
 
 
 
-        GetChatMessage();
+       // GetChatMessage();
     }
     catch (Exception)
     {
@@ -218,7 +240,7 @@ async void ContactService(ChatMessage message)
 
 async void GetChatMessage()
 {
-
+  
     HttpClient client = new HttpClient();
     string url = "https://localhost:7060/api/chat";
 
@@ -232,15 +254,13 @@ async void GetChatMessage()
     //desiralize to make it into a .NET object
     chatMsg = JsonConvert.DeserializeObject<Chat>(responseBody);
 
+    chat = new UpdateChat();
+    chat.Name = chatMsg.Name;
+    chat.LastMessage = chatMsg.Message;
+    SendTypedNetworkMessage(listener, groupEP, chat, MessageType.chatUpdate);
+
     //write out the properties, real function yet to be made
-    Console.WriteLine(chatMsg.Name + ": " + chatMsg.Message);
-
-
-
-
-
-
-
+    //  Console.WriteLine(chatMsg.Name + ": " + chatMsg.Message);
 
 
 }
