@@ -1,7 +1,10 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using BattleShipsServer;
+using System.Drawing;
+
 public class Messages
 {
-    public enum MessageType { movement, snapshot, join, initialJoin, chatmessage, chatUpdate, turnUpdate, checkConnection }
+    public enum MessageType { movement, snapshot, join, initialJoin, chatmessage, chatUpdate, turnUpdate, checkConnection, sendBoard }
     public enum Direction { up, down }
 
    
@@ -73,5 +76,11 @@ public class Messages
         public int rightPlayerYPos;
         public int ballXPos;
         public int ballYPos;
+    }
+    [Serializable]
+    public class SendBoard : NetworkMessageBase
+    {
+        public Dictionary<Point, Cell> Board { get; set; }
+        public string Name;
     }
 }

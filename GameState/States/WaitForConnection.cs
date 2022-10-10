@@ -8,6 +8,7 @@ namespace BattleShipsServer
 {
     public class Initialize : IState
     {
+        public int users = 0;
         private static Initialize instance;
         public static Initialize Instance
         {
@@ -28,12 +29,20 @@ namespace BattleShipsServer
 
         public void Execute()
         {
-            
+            WaitForUsers();
         }
 
         public void Exit()
         {
             
+        }
+
+        public void WaitForUsers()
+        {
+            if (users >= 2)
+            {
+                GameStateController.Instance.ChangeGameState(RequestBoards.Instance);
+            }
         }
     }
 }

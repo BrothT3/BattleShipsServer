@@ -11,7 +11,7 @@ namespace BattleShipsServer
         private IState currentGameState;
 
 
-
+        public List<User> User { get; set; }
 
         private static GameStateController instance;
         public static GameStateController Instance

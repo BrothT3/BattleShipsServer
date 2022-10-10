@@ -130,6 +130,10 @@ void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
                 CheckConnection checkConnection = complexMessage["message"].ToObject<CheckConnection>();
                 ConnectionCheck(checkConnection);
                 break;
+            case MessageType.sendBoard:
+                SendBoard sendBoard = complexMessage["message"].ToObject<SendBoard>();
+                RequestBoards.Instance.GetBoard(sendBoard);
+                break;
             default:
                 break;
         }
@@ -165,6 +169,7 @@ void HandleJoinMessage(IPEndPoint messageSenderInfo, UdpClient listener, JoinMes
     if (users.Find(x => x.Name == recievedJoinMessage.playerName) == null)
     {
         users.Add(new User() { Name = recievedJoinMessage.playerName, YourTurn = false });
+        GameStateController.Instance.User.Add(new User() { Name = recievedJoinMessage.playerName, YourTurn = false });
     }
     resX = recievedJoinMessage.ResolutionX;
     resY = recievedJoinMessage.ResolutionY;
@@ -190,7 +195,7 @@ void HandleJoinMessage(IPEndPoint messageSenderInfo, UdpClient listener, JoinMes
 
     //should actually start when two players have joined...
     timer.Start();
-
+    //Initialize.Instance.users++;
     //when playercount is up and good shit's happening
     GameStateController.Instance.ChangeGameState(Initialize.Instance);
 }
