@@ -11,8 +11,9 @@ namespace BattleShipsServer
         private IState currentGameState;
 
 
-        public List<User> User { get; set; }
+        private List<User> user = new List<User>();
 
+        public List<User> User { get => user; set => user = value; }
         private static GameStateController instance;
         public static GameStateController Instance
         {
@@ -26,6 +27,9 @@ namespace BattleShipsServer
             }
 
         }
+
+        
+
         public void ChangeGameState(IState nextGameState)
         {
             if (currentGameState != null)
