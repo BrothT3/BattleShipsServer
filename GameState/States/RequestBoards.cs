@@ -35,6 +35,8 @@ namespace BattleShipsServer
 
         public void Exit()
         {
+            //GameStateController.Instance.Boards[0] = GameStateController.Instance.User[0].Board;
+            //GameStateController.Instance.Boards[1] = GameStateController.Instance.User[1].Board;
             boards = 0;
         }
         public void GetBoard(SendBoard Board)
