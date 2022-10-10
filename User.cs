@@ -1,13 +1,15 @@
-﻿using System.Drawing;
+﻿using Newtonsoft.Json;
+using System.Drawing;
 
 namespace BattleShipsServer
 {
+    [Serializable]
     public class User
     {
         public string Name { get; set; }
         public bool YourTurn { get; set; }
 
-        public Dictionary<Point, Cell> Board { get; set; }
+        public Dictionary<string, Cell> Board = new Dictionary<string, Cell>();
 
         public bool isReady { get; set; }
     }

@@ -80,7 +80,7 @@ public class Messages
     [Serializable]
     public class SendBoard : NetworkMessageBase
     {
-        public Dictionary<Point, Cell> Board { get; set; }
+        public Dictionary<string, Cell> Board { get; set; }
         public string Name;
     }
 }
