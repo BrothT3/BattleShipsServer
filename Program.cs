@@ -32,6 +32,11 @@ int ballYPos = 0;
 int resX;
 int resY;
 
+List<User> users = new List<User>();
+//used to check if user is connected
+string prevName = String.Empty;
+List<string> connectedUsers = new List<string>();
+
 UpdateChat chat = null;
 
 timer.Elapsed += SendingTimer;
@@ -48,7 +53,7 @@ void Listening()
         Console.WriteLine($"Listening on port: {port}");
         while (true)
         {
-          //  Console.WriteLine("Waiting for data..");
+            //  Console.WriteLine("Waiting for data..");
 
             var data = listener.Receive(ref groupEP);
 
@@ -71,7 +76,7 @@ void SendingTimer(object? sender, ElapsedEventArgs e)
 {
     //simular to update loop :)
 
-    
+
     //  GameStateController.Instance.UpdateGameState();
 
     //is ball outside of resolution?? Does somehting happen?
@@ -82,7 +87,7 @@ void SendingTimer(object? sender, ElapsedEventArgs e)
 
 
 
-    
+
 
     //  SnapShot snapshot = new SnapShot() { ballXpos = ballXPos, ballYpos = ballYPos };
     //  SendTypedNetworkMessage(listener, groupEP, snapshot, MessageType.snapshot);
@@ -121,6 +126,10 @@ void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
                 UpdateChat chatUpdate = complexMessage["message"].ToObject<UpdateChat>();
                 GetChatMessage();
                 break;
+            case MessageType.checkConnection:
+                CheckConnection checkConnection = complexMessage["message"].ToObject<CheckConnection>();
+                ConnectionCheck(checkConnection);
+                break;
             default:
                 break;
         }
@@ -152,8 +161,11 @@ async void HandleChatMessage(IPEndPoint groupEP, UdpClient listener)
 
 void HandleJoinMessage(IPEndPoint messageSenderInfo, UdpClient listener, JoinMessage recievedJoinMessage)
 {
-    ballXPos = recievedJoinMessage.ResolutionX / 2;
-    ballYPos = recievedJoinMessage.ResolutionY / 2;
+
+    if (users.Find(x => x.Name == recievedJoinMessage.playerName) == null)
+    {
+        users.Add(new User() { Name = recievedJoinMessage.playerName, YourTurn = false });
+    }
     resX = recievedJoinMessage.ResolutionX;
     resY = recievedJoinMessage.ResolutionY;
     //var networkMessage = new SetInitialPositionsMessage()
@@ -169,12 +181,13 @@ void HandleJoinMessage(IPEndPoint messageSenderInfo, UdpClient listener, JoinMes
 
     var networkMessage = new ChatMessage()
     {
-        chatMessage = "tester"
+        chatMessage = $"{recievedJoinMessage.playerName} has joined the game..",
+        Name = "Server"
     };
+    ContactService(networkMessage);
 
+    //  SendTypedNetworkMessage(listener, messageSenderInfo, networkMessage, MessageType.join);
 
-    SendTypedNetworkMessage(listener, messageSenderInfo, networkMessage, MessageType.join);
-    
     //should actually start when two players have joined...
     timer.Start();
 
@@ -195,7 +208,7 @@ static void SendTypedNetworkMessage(UdpClient listener, IPEndPoint groupEP, Netw
 
     byte[] jsonAsBytes = Encoding.UTF8.GetBytes(serializedNetworkMessage);
 
-    Debug.WriteLine($"Sending json message{serializedNetworkMessage} to client..");
+   // Debug.WriteLine($"Sending json message{serializedNetworkMessage} to client..");
     try
     {
         listener.Send(jsonAsBytes, groupEP);
@@ -228,7 +241,7 @@ async void ContactService(ChatMessage message)
 
 
 
-       // GetChatMessage();
+        // GetChatMessage();
     }
     catch (Exception)
     {
@@ -240,27 +253,99 @@ async void ContactService(ChatMessage message)
 
 async void GetChatMessage()
 {
-  
-    HttpClient client = new HttpClient();
-    string url = "https://localhost:7060/api/chat";
+    try
+    {
+        HttpClient client = new HttpClient();
+        string url = "https://localhost:7060/api/chat";
 
-    var chatMsg = new Chat();
-    var res = await client.GetAsync(url);
+        var chatMsg = new Chat();
+        var res = await client.GetAsync(url);
 
 
-    //string will be in json format
-    string responseBody = await res.Content.ReadAsStringAsync();
+        //string will be in json format
+        string responseBody = await res.Content.ReadAsStringAsync();
 
-    //desiralize to make it into a .NET object
-    chatMsg = JsonConvert.DeserializeObject<Chat>(responseBody);
+        //desiralize to make it into a .NET object
+        chatMsg = JsonConvert.DeserializeObject<Chat>(responseBody);
 
-    chat = new UpdateChat();
-    chat.Name = chatMsg.Name;
-    chat.LastMessage = chatMsg.Message;
-    SendTypedNetworkMessage(listener, groupEP, chat, MessageType.chatUpdate);
+        chat = new UpdateChat();
+        chat.Name = chatMsg.Name;
+        chat.LastMessage = chatMsg.Message;
 
-    //write out the properties, real function yet to be made
-    //  Console.WriteLine(chatMsg.Name + ": " + chatMsg.Message);
+
+        SendTypedNetworkMessage(listener, groupEP, chat, MessageType.chatUpdate);
+
+
+
+
+        //write out the properties, real function yet to be made
+        //  Console.WriteLine(chatMsg.Name + ": " + chatMsg.Message);
+
+    }
+    catch (Exception)
+    {
+
+
+    }
+
 
 
 }
+
+
+void ConnectionCheck(CheckConnection connection)
+{
+
+
+    try
+    {
+        string name = connection.Name;
+
+
+        connectedUsers.Add(name);
+
+
+        if (connectedUsers.Count >= 10)
+        {
+            string userOne = string.Empty;
+            string userTwo = string.Empty;
+            foreach (string userName in connectedUsers)
+            {
+                if (userOne == string.Empty)
+                {
+                    userOne = userName;
+                    
+                }
+                else if (userTwo == string.Empty && userName != userOne)
+                {
+                    userTwo = userName;
+                }
+
+
+            }
+
+            while (users.Find(x => x.Name != userOne && x.Name != userTwo) != null)
+            {
+                User tmp = users.Find(x => x.Name != userOne && x.Name != userTwo);
+                users.Remove(tmp);
+            }
+
+            connectedUsers.Clear();
+
+            foreach (User user in users)
+            {
+                Debug.WriteLine(user.Name);
+            }
+        }
+
+
+    }
+    catch (Exception)
+    {
+
+
+    }
+
+
+}
+
