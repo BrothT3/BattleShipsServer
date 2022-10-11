@@ -120,7 +120,7 @@ void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
                 break;
             case MessageType.chatmessage:
                 ChatMessage chatMessage = complexMessage["message"].ToObject<ChatMessage>();
-                ContactService(chatMessage);
+                PostToService(chatMessage);
                 break;
             case MessageType.chatUpdate:
                 UpdateChat chatUpdate = complexMessage["message"].ToObject<UpdateChat>();
@@ -173,27 +173,15 @@ void HandleJoinMessage(IPEndPoint messageSenderInfo, UdpClient listener, JoinMes
     }
     resX = recievedJoinMessage.ResolutionX;
     resY = recievedJoinMessage.ResolutionY;
-    //var networkMessage = new SetInitialPositionsMessage()
-    //{
-
-    //    ballXPos = recievedJoinMessage.ResolutionX / 2,
-    //    ballYPos = recievedJoinMessage.ResolutionY / 2,
-    //    leftPlayerXPos = 0,
-    //    leftPlayerYPos = recievedJoinMessage.ResolutionY / 2,
-    //    rightPlayerXPos = recievedJoinMessage.ResolutionX,
-    //    rightPlayerYPos = recievedJoinMessage.ResolutionY / 2
-    //};
 
     var networkMessage = new ChatMessage()
     {
         chatMessage = $"{recievedJoinMessage.playerName} has joined the game..",
         Name = "Server"
     };
-    ContactService(networkMessage);
+    PostToService(networkMessage);
 
-    //  SendTypedNetworkMessage(listener, messageSenderInfo, networkMessage, MessageType.join);
 
-    //should actually start when two players have joined...
     timer.Start();
     //Initialize.Instance.users++;
     //when playercount is up and good shit's happening
@@ -213,7 +201,6 @@ static void SendTypedNetworkMessage(UdpClient listener, IPEndPoint groupEP, Netw
 
     byte[] jsonAsBytes = Encoding.UTF8.GetBytes(serializedNetworkMessage);
 
-   // Debug.WriteLine($"Sending json message{serializedNetworkMessage} to client..");
     try
     {
         listener.Send(jsonAsBytes, groupEP);
@@ -232,21 +219,17 @@ static void SendTypedNetworkMessage(UdpClient listener, IPEndPoint groupEP, Netw
 
 }
 
-async void ContactService(ChatMessage message)
+async void PostToService(ChatMessage message)
 {
     HttpClient client = new HttpClient();
     string url = "https://localhost:7060/api/chat";
 
     try
     {
-
         var chat = new Chat() { Name = message.Name, Message = message.chatMessage };
         var data = new StringContent(JsonConvert.SerializeObject(chat), Encoding.UTF8, "application/json");
         var res = await client.PostAsync(url + "/message", data);
 
-
-
-        // GetChatMessage();
     }
     catch (Exception)
     {
@@ -266,25 +249,15 @@ async void GetChatMessage()
         var chatMsg = new Chat();
         var res = await client.GetAsync(url);
 
-
         //string will be in json format
         string responseBody = await res.Content.ReadAsStringAsync();
 
         //desiralize to make it into a .NET object
         chatMsg = JsonConvert.DeserializeObject<Chat>(responseBody);
-
-        chat = new UpdateChat();
-        chat.Name = chatMsg.Name;
-        chat.LastMessage = chatMsg.Message;
-
+        chat = new UpdateChat() { Name = chatMsg.Name, LastMessage = chatMsg.Message};
 
         SendTypedNetworkMessage(listener, groupEP, chat, MessageType.chatUpdate);
 
-
-
-
-        //write out the properties, real function yet to be made
-        //  Console.WriteLine(chatMsg.Name + ": " + chatMsg.Message);
 
     }
     catch (Exception)
@@ -305,10 +278,7 @@ void ConnectionCheck(CheckConnection connection)
     try
     {
         string name = connection.Name;
-
-
         connectedUsers.Add(name);
-
 
         if (connectedUsers.Count >= 10)
         {
@@ -325,22 +295,14 @@ void ConnectionCheck(CheckConnection connection)
                 {
                     userTwo = userName;
                 }
-
-
             }
 
             while (users.Find(x => x.Name != userOne && x.Name != userTwo) != null)
             {
-                User tmp = users.Find(x => x.Name != userOne && x.Name != userTwo);
+                User? tmp = users.Find(x => x.Name != userOne && x.Name != userTwo);
                 users.Remove(tmp);
             }
-
             connectedUsers.Clear();
-
-            foreach (User user in users)
-            {
-                Debug.WriteLine(user.Name);
-            }
         }
 
 
