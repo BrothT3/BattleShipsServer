@@ -50,7 +50,7 @@ void Listening()
 {
     try
     {
-        Console.WriteLine($"Listening on port: {port}");
+        Console.WriteLine($"Server is online");
         while (true)
         {
             //  Console.WriteLine("Waiting for data..");
@@ -77,7 +77,7 @@ void SendingTimer(object? sender, ElapsedEventArgs e)
     //simular to update loop :)
 
 
-    //  GameStateController.Instance.UpdateGameState();
+      GameStateController.Instance.UpdateGameState();
 
     //is ball outside of resolution?? Does somehting happen?
 
@@ -186,6 +186,12 @@ void HandleJoinMessage(IPEndPoint messageSenderInfo, UdpClient listener, JoinMes
     //Initialize.Instance.users++;
     //when playercount is up and good shit's happening
     GameStateController.Instance.ChangeGameState(Initialize.Instance);
+
+    if (GameStateController.Instance.User.Count >= 2)
+    {
+        ChangeGameState change = new ChangeGameState() { nextGameState = GameState.placeShips };
+        SendTypedNetworkMessage(listener, groupEP, change, MessageType.changeState);
+    }
 }
 
 static void SendTypedNetworkMessage(UdpClient listener, IPEndPoint groupEP, NetworkMessageBase networkMessageBase, MessageType messageType)
@@ -254,7 +260,7 @@ async void GetChatMessage()
 
         //desiralize to make it into a .NET object
         chatMsg = JsonConvert.DeserializeObject<Chat>(responseBody);
-        chat = new UpdateChat() { Name = chatMsg.Name, LastMessage = chatMsg.Message};
+        chat = new UpdateChat() { Name = chatMsg.Name, LastMessage = chatMsg.Message };
 
         SendTypedNetworkMessage(listener, groupEP, chat, MessageType.chatUpdate);
 
@@ -289,7 +295,7 @@ void ConnectionCheck(CheckConnection connection)
                 if (userOne == string.Empty)
                 {
                     userOne = userName;
-                    
+
                 }
                 else if (userTwo == string.Empty && userName != userOne)
                 {

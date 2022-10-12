@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Messages;
 
 namespace BattleShipsServer
 {
@@ -24,7 +25,7 @@ namespace BattleShipsServer
         }
         public void Enter()
         {
-            
+
         }
 
         public void Execute()
@@ -34,13 +35,14 @@ namespace BattleShipsServer
 
         public void Exit()
         {
-            
+
         }
 
         public void WaitForUsers()
         {
-            if (users >= 2)
+            if (GameStateController.Instance.User.Count >= 2)
             {
+
                 GameStateController.Instance.ChangeGameState(RequestBoards.Instance);
             }
         }

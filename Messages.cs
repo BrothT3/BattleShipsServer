@@ -4,7 +4,8 @@ using System.Drawing;
 
 public class Messages
 {
-    public enum MessageType { movement, snapshot, join, initialJoin, chatmessage, chatUpdate, turnUpdate, checkConnection, sendBoard }
+    public enum MessageType { movement, snapshot, join, initialJoin, chatmessage, chatUpdate, turnUpdate, checkConnection, sendBoard, changeState}
+    public enum GameState { placeShips, waitForOpponent, yourTurn}
     public enum Direction { up, down }
 
    
@@ -82,5 +83,13 @@ public class Messages
     {
         public Dictionary<string, Cell> Board { get; set; }
         public string Name;
+    }
+
+
+    [Serializable]
+    public class ChangeGameState : NetworkMessageBase
+    {
+        public string Name;
+        public GameState nextGameState;
     }
 }
