@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,9 +35,7 @@ namespace BattleShipsServer
         }
 
         public void Exit()
-        {
-            //GameStateController.Instance.Boards[0] = GameStateController.Instance.User[0].Board;
-            //GameStateController.Instance.Boards[1] = GameStateController.Instance.User[1].Board;
+        {          
             boards = 0;
         }
         public void GetBoard(SendBoard Board)
@@ -44,12 +43,20 @@ namespace BattleShipsServer
             User user = GameStateController.Instance.User.Find(x => x.Name == Board.Name);
             user.Board = Board.Board;
             boards++;
+            if (boards == 1)
+            {
+                GameStateController.Instance.Boards[0] = user.Board;
+            }
+            else if (boards == 2)
+            {
+                GameStateController.Instance.Boards[1] = user.Board;
+            }
         }
         public void CheckBoards()
         {
             if (boards == 2)
             {
-                //GameStateController.Instance.ChangeGameState(trin3.instance);
+                //GameStateController.Instance.ChangeGameState(trin3.instance);                           
             }
         }
 

@@ -77,7 +77,7 @@ void SendingTimer(object? sender, ElapsedEventArgs e)
     //simular to update loop :)
 
 
-      GameStateController.Instance.UpdateGameState();
+    GameStateController.Instance.UpdateGameState();
 
     //is ball outside of resolution?? Does somehting happen?
 
@@ -187,11 +187,9 @@ void HandleJoinMessage(IPEndPoint messageSenderInfo, UdpClient listener, JoinMes
     //when playercount is up and good shit's happening
     GameStateController.Instance.ChangeGameState(Initialize.Instance);
 
-    if (GameStateController.Instance.User.Count >= 2)
-    {
-        ChangeGameState change = new ChangeGameState() { nextGameState = GameState.placeShips };
-        SendTypedNetworkMessage(listener, groupEP, change, MessageType.changeState);
-    }
+    //was supposed to change once 2 players connected, but we couldn't find a way to do this from inside our state pattern
+    ChangeGameState change = new ChangeGameState() { nextGameState = GameState.placeShips };
+    SendTypedNetworkMessage(listener, groupEP, change, MessageType.changeState);
 }
 
 static void SendTypedNetworkMessage(UdpClient listener, IPEndPoint groupEP, NetworkMessageBase networkMessageBase, MessageType messageType)
