@@ -4,15 +4,13 @@ using System.Drawing;
 
 public class Messages
 {
-    public enum MessageType { movement, snapshot, join, initialJoin,
-        chatmessage, chatUpdate, turnUpdate, checkConnection, sendBoard,
+    public enum MessageType { join, chatmessage, chatUpdate,
+        turnUpdate, checkConnection, sendBoard,
         changeState, sendMouseInfo, receiveOpponentMouse, shoot
     }
     public enum GameState { placeShips, waitForOpponent, yourTurn}
-    public enum Direction { up, down }
 
    
-
     [Serializable]
     public class NetworkMessage
     {
@@ -24,20 +22,6 @@ public class Messages
     {
         
     }
-    [Serializable]
-    public class PlayerMovementUpdate : NetworkMessageBase
-    {
-        public Direction direction;
-    }
-
-    [Serializable]
-    public class SnapShot : NetworkMessageBase
-    {
-        public List<float> playerYPos;
-        public int ballXpos;
-        public int ballYpos;
-    }
-
     [Serializable]
     public class JoinMessage : NetworkMessageBase
     {
@@ -75,16 +59,6 @@ public class Messages
         public string Name;
     }
 
-    [Serializable]
-    public class SetInitialPositionsMessage : NetworkMessageBase
-    {
-        public int leftPlayerXPos;
-        public int leftPlayerYPos;
-        public int rightPlayerXPos;
-        public int rightPlayerYPos;
-        public int ballXPos;
-        public int ballYPos;
-    }
     [Serializable]
     public class SendBoard : NetworkMessageBase
     {

@@ -30,7 +30,7 @@ namespace BattleShipsServer
 
         public void Execute()
         {
-            //HandleTurn();
+
             if (Users[0].HitCells >= 17)
             {
                 Users[0].HasWon = true;
@@ -56,6 +56,7 @@ namespace BattleShipsServer
                 currentUser = Users[0];
                 if (Users[1].Board["{"+point+"}"].IsOccupied && !Users[1].Board["{" + point + "}"].IsFiredOn)
                 {
+                    //90% if these were made while trying to fix something and once it worked we were afraid to mess with it due to lack time
                     Users[0].HasHit = true;
                     currentUser.HasHit = true;
                     Users[0].HitCells++;

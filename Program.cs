@@ -26,9 +26,6 @@ timer.Interval = (double)1000f / updateInterval;
 
 
 
-//game state, needs to be configured
-int ballXPos = 0;
-int ballYPos = 0;
 
 int resX;
 int resY;
@@ -54,7 +51,6 @@ void Listening()
         Console.WriteLine($"Server is online");
         while (true)
         {
-            //  Console.WriteLine("Waiting for data..");
 
             var data = listener.Receive(ref groupEP);
 
@@ -75,23 +71,10 @@ void Listening()
 
 void SendingTimer(object? sender, ElapsedEventArgs e)
 {
-    //simular to update loop :)
 
 
     GameStateController.Instance.UpdateGameState();
 
-    //is ball outside of resolution?? Does somehting happen?
-
-    //Get player pos from worldstate?
-
-    //All the actual game logic goes here. Or at least this is the starting point.
-
-
-
-
-
-    //  SnapShot snapshot = new SnapShot() { ballXpos = ballXPos, ballYpos = ballYPos };
-    //  SendTypedNetworkMessage(listener, groupEP, snapshot, MessageType.snapshot);
 }
 
 
@@ -112,9 +95,7 @@ void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
 
         switch (mesType)
         {
-            case MessageType.movement:
-                PlayerMovementUpdate receivedMovement = complexMessage["message"].ToObject<PlayerMovementUpdate>();
-                break;
+
             case MessageType.join:
                 JoinMessage recievedJoinedMessage = complexMessage["message"].ToObject<JoinMessage>();
                 HandleJoinMessage(messageSenderInfo, listener, recievedJoinedMessage);
@@ -161,7 +142,13 @@ void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
 async void HandleChatMessage(IPEndPoint groupEP, UdpClient listener)
 {
     HttpClient client = new HttpClient();
+#if DEBUG
     string url = "https://localhost:7060/api/chat";
+#endif
+
+#if RELEASE
+    string url = "https://localhost:5001/api/chat";
+#endif
 
     var chatMsg = new Chat();
     var res = await client.GetAsync(url);
@@ -202,8 +189,7 @@ void HandleJoinMessage(IPEndPoint messageSenderInfo, UdpClient listener, JoinMes
 
 
     timer.Start();
-    //Initialize.Instance.users++;
-    //when playercount is up and good shit's happening
+
     GameStateController.Instance.ChangeGameState(Initialize.Instance);
 
     //was supposed to change once 2 players connected, but we couldn't find a way to do this from inside our state pattern
@@ -245,7 +231,13 @@ static void SendTypedNetworkMessage(UdpClient listener, IPEndPoint groupEP, Netw
 async void PostToService(ChatMessage message)
 {
     HttpClient client = new HttpClient();
+#if DEBUG
     string url = "https://localhost:7060/api/chat";
+#endif
+
+#if RELEASE
+    string url = "https://localhost:5001/api/chat";
+#endif
 
     try
     {
@@ -266,9 +258,15 @@ async void GetChatMessage()
 {
     try
     {
+#if DEBUG
+    string url = "https://localhost:7060/api/chat";
+#endif
+#if RELEASE
+        string url = "https://localhost:5001/api/chat";
+#endif
         HttpClient client = new HttpClient();
-        string url = "https://localhost:7060/api/chat";
-
+       
+        
         var chatMsg = new Chat();
         var res = await client.GetAsync(url);
 
@@ -343,18 +341,12 @@ void SendMouseInfo(SendMousePos sendMousePos)
 {
     opponentInfo = new SendMousePos() { mousePos = sendMousePos.mousePos, Name = sendMousePos.Name };
 
-    // SendTypedNetworkMessage(listener, groupEP, networkMessage, MessageType.receiveOpponentMouse);
+
 }
 
 void ReceiveOpponentMousePos(UdpClient listener, IPEndPoint groupEP)
 {
-    //var turnUpdate = new TurnUpdate()
-    //{
-    //    Name = GameStateController.Instance.User[0].Name,
-    //    YourTurn = true
-    //};
 
-    //SendTypedNetworkMessage(listener, groupEP, turnUpdate, MessageType.turnUpdate);
 
     if (opponentInfo != null)
     {
