@@ -13,5 +13,6 @@ namespace BattleShipsServer
 
         public bool isReady { get; set; }
         public bool HasFired { get; set; }
+        public bool HasHit { get; set; }
     }
 }

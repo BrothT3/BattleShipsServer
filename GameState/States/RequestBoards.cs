@@ -50,12 +50,17 @@ namespace BattleShipsServer
             if (boards == 1)
             {
                 GameStateController.Instance.Boards[0] = user.Board;
+               
 
             }
             else if (boards == 2)
             {
                 GameStateController.Instance.Boards[1] = user.Board;
-                
+
+                TurnHandler.Instance.Users[0] = GameStateController.Instance.User[0];
+                TurnHandler.Instance.Users[1] = GameStateController.Instance.User[1];
+
+
             }
         }
         public void CheckBoards()
