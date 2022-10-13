@@ -6,7 +6,7 @@ public class Messages
 {
     public enum MessageType { movement, snapshot, join, initialJoin,
         chatmessage, chatUpdate, turnUpdate, checkConnection, sendBoard,
-        changeState, sendMouseInfo, receiveOpponentMouse
+        changeState, sendMouseInfo, receiveOpponentMouse, shoot
     }
     public enum GameState { placeShips, waitForOpponent, yourTurn}
     public enum Direction { up, down }
@@ -64,6 +64,7 @@ public class Messages
     {
         public string Name;
         public bool YourTurn;
+        public bool HasHit;
     }
 
     [Serializable]
@@ -102,5 +103,14 @@ public class Messages
     {
         public string Name;
         public string mousePos { get; set; }
+    }
+
+    [Serializable]
+    public class SendShotAttempt : NetworkMessageBase
+    {
+        public string Name;
+        public string MousePos;
+        public bool HasFired;
+
     }
 }

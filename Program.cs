@@ -147,6 +147,11 @@ void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
                 TurnUpdate turnUpdate = complexMessage["message"].ToObject<TurnUpdate>();
                 HandleTurns(listener, groupEP, turnUpdate);
                 break;
+
+            case MessageType.shoot:
+                SendShotAttempt shot = complexMessage["message"].ToObject<SendShotAttempt>();
+                TurnHandler.Instance.HandleTurn(shot);
+                break;
             default:
                 break;
         }
@@ -370,7 +375,8 @@ void HandleTurns(UdpClient listener, IPEndPoint groupEP, TurnUpdate turnUpdate)
     if (GameStateController.Instance.CurrentGameState == TurnHandler.Instance && TurnHandler.Instance.CurrentUser != null)
     {
 
-        var networkMessage = new TurnUpdate() { Name = TurnHandler.Instance.CurrentUser.Name, YourTurn = TurnHandler.Instance.CurrentUser.YourTurn };
+        var networkMessage = new TurnUpdate() { Name = TurnHandler.Instance.CurrentUser.Name,
+            YourTurn = TurnHandler.Instance.CurrentUser.YourTurn , HasHit = TurnHandler.Instance.CurrentUser.HasHit};
 
         SendTypedNetworkMessage(listener, groupEP, networkMessage, MessageType.turnUpdate);
     }

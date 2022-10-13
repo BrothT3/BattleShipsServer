@@ -19,6 +19,8 @@ namespace BattleShipsServer
         //Maybe used to keep track of board[1] board[2] for turns and such
         public Dictionary<string, Cell>[]Boards = new Dictionary<string, Cell>[2];
 
+        
+
 
         private static GameStateController instance;
         public static GameStateController Instance
