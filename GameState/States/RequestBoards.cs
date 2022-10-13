@@ -42,10 +42,15 @@ namespace BattleShipsServer
         {
             User user = GameStateController.Instance.User.Find(x => x.Name == Board.Name);
             user.Board = Board.Board;
+            if (user == GameStateController.Instance.User[0])
+            {
+                user.YourTurn = true;
+            }
             boards++;
             if (boards == 1)
             {
                 GameStateController.Instance.Boards[0] = user.Board;
+
             }
             else if (boards == 2)
             {

@@ -19,6 +19,7 @@ int port = 11000;
 UdpClient listener = new UdpClient(port);
 IPEndPoint groupEP = new IPEndPoint(IPAddress.Any, port);
 
+SendMousePos opponentInfo = new SendMousePos();
 float updateInterval = 60;
 System.Timers.Timer timer = new System.Timers.Timer();
 timer.Interval = (double)1000f / updateInterval;
@@ -133,6 +134,14 @@ void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
             case MessageType.sendBoard:
                 SendBoard sendBoard = complexMessage["message"].ToObject<SendBoard>();
                 RequestBoards.Instance.GetBoard(sendBoard);
+                break;
+            case MessageType.sendMouseInfo:
+                SendMousePos sendMousePos = complexMessage["message"].ToObject<SendMousePos>();
+                SendMouseInfo(sendMousePos);
+                break;
+            case MessageType.receiveOpponentMouse:
+                SendMousePos receiveMousePos = complexMessage["message"].ToObject<SendMousePos>();
+                ReceiveOpponentMousePos(listener, groupEP);
                 break;
             default:
                 break;
@@ -320,3 +329,33 @@ void ConnectionCheck(CheckConnection connection)
 
 }
 
+void SendMouseInfo(SendMousePos sendMousePos)
+{
+    opponentInfo = new SendMousePos() { mousePos = sendMousePos.mousePos, Name = sendMousePos.Name };
+
+   // SendTypedNetworkMessage(listener, groupEP, networkMessage, MessageType.receiveOpponentMouse);
+}
+
+void ReceiveOpponentMousePos(UdpClient listener, IPEndPoint groupEP)
+{
+    var turnUpdate = new TurnUpdate()
+    {
+        Name = GameStateController.Instance.User[0].Name,
+        YourTurn = true
+    };
+    GameStateController.Instance.User[0].YourTurn = true;
+    SendTypedNetworkMessage(listener, groupEP, turnUpdate, MessageType.turnUpdate);
+
+    if (opponentInfo != null)
+    {
+        var networkMessage = new SendMousePos()
+        {
+            mousePos = opponentInfo.mousePos,
+            Name = opponentInfo.Name
+        };
+        SendTypedNetworkMessage(listener, groupEP, networkMessage, MessageType.receiveOpponentMouse);
+
+
+    }
+   
+}
