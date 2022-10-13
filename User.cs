@@ -12,5 +12,6 @@ namespace BattleShipsServer
         public Dictionary<string, Cell> Board = new Dictionary<string, Cell>();
 
         public bool isReady { get; set; }
+        public bool HasFired { get; set; }
     }
 }
