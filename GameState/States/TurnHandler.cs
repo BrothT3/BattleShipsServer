@@ -31,6 +31,16 @@ namespace BattleShipsServer
         public void Execute()
         {
             //HandleTurn();
+            if (Users[0].HitCells >= 17)
+            {
+                Users[0].HasWon = true;
+                Users[1].HasLost = true;
+            }
+            if (Users[1].HitCells >= 17)
+            {
+                Users[1].HasWon = true;
+                Users[0].HasLost = true;
+            }
         }
 
         public void Exit()
@@ -44,11 +54,12 @@ namespace BattleShipsServer
             if (shot.Name == Users[0].Name)
             {
                 currentUser = Users[0];
-                if (Users[1].Board["{"+point+"}"].IsOccupied)
+                if (Users[1].Board["{"+point+"}"].IsOccupied && !Users[1].Board["{" + point + "}"].IsFiredOn)
                 {
                     Users[0].HasHit = true;
                     currentUser.HasHit = true;
-                 
+                    Users[0].HitCells++;
+                    Users[1].Board["{" + point + "}"].IsFiredOn = true;
                 }
                 else
                 {
@@ -63,11 +74,12 @@ namespace BattleShipsServer
             if (shot.Name == Users[1].Name)
             {
                 currentUser = Users[1];
-                if (Users[0].Board["{"+point+"}"].IsOccupied)
+                if (Users[0].Board["{"+point+"}"].IsOccupied &&!Users[0].Board["{" + point + "}"].IsFiredOn)
                 {
                     Users[1].HasHit = true;
                     currentUser.HasHit = true;
-                    
+                    Users[0].HitCells++;
+                    Users[0].Board["{" + point + "}"].IsFiredOn = true;
 
                 }
                 else

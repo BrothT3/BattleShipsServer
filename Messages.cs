@@ -65,6 +65,8 @@ public class Messages
         public string Name;
         public bool YourTurn;
         public bool HasHit;
+        public bool HasWon;
+        public bool HasLost;
     }
 
     [Serializable]

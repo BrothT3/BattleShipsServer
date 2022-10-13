@@ -9,5 +9,6 @@ namespace BattleShipsServer
     public class Cell
     {
         public bool IsOccupied { get; set; }
+        public bool IsFiredOn { get; set; }
     }
 }

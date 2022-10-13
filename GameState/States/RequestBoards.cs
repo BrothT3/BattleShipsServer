@@ -57,8 +57,8 @@ namespace BattleShipsServer
             {
                 GameStateController.Instance.Boards[1] = user.Board;
 
-                TurnHandler.Instance.Users[0] = GameStateController.Instance.User[0];
-                TurnHandler.Instance.Users[1] = GameStateController.Instance.User[1];
+                TurnHandler.Instance.Users[0] = GameStateController.Instance.User[1];
+                TurnHandler.Instance.Users[1] = GameStateController.Instance.User[0];
 
 
             }

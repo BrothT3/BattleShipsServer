@@ -183,11 +183,12 @@ async void HandleChatMessage(IPEndPoint groupEP, UdpClient listener)
 
 void HandleJoinMessage(IPEndPoint messageSenderInfo, UdpClient listener, JoinMessage recievedJoinMessage)
 {
-
+    
     if (users.Find(x => x.Name == recievedJoinMessage.playerName) == null)
     {
         users.Add(new User() { Name = recievedJoinMessage.playerName, YourTurn = false });
-        GameStateController.Instance.User.Add(new User() { Name = recievedJoinMessage.playerName, YourTurn = false });
+        User user = new User() { Name = recievedJoinMessage.playerName, YourTurn = false, HitCells = 0 };
+        GameStateController.Instance.User.Add(user);
     }
     resX = recievedJoinMessage.ResolutionX;
     resY = recievedJoinMessage.ResolutionY;
@@ -352,7 +353,7 @@ void ReceiveOpponentMousePos(UdpClient listener, IPEndPoint groupEP)
     //    Name = GameStateController.Instance.User[0].Name,
     //    YourTurn = true
     //};
-   
+
     //SendTypedNetworkMessage(listener, groupEP, turnUpdate, MessageType.turnUpdate);
 
     if (opponentInfo != null)
@@ -375,8 +376,14 @@ void HandleTurns(UdpClient listener, IPEndPoint groupEP, TurnUpdate turnUpdate)
     if (GameStateController.Instance.CurrentGameState == TurnHandler.Instance && TurnHandler.Instance.CurrentUser != null)
     {
 
-        var networkMessage = new TurnUpdate() { Name = TurnHandler.Instance.CurrentUser.Name,
-            YourTurn = TurnHandler.Instance.CurrentUser.YourTurn , HasHit = TurnHandler.Instance.CurrentUser.HasHit};
+        var networkMessage = new TurnUpdate()
+        {
+            Name = TurnHandler.Instance.CurrentUser.Name,
+            YourTurn = TurnHandler.Instance.CurrentUser.YourTurn,
+            HasHit = TurnHandler.Instance.CurrentUser.HasHit,
+            HasWon = TurnHandler.Instance.CurrentUser.HasWon,
+            HasLost = TurnHandler.Instance.CurrentUser.HasLost
+        };
 
         SendTypedNetworkMessage(listener, groupEP, networkMessage, MessageType.turnUpdate);
     }
