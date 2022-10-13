@@ -10,7 +10,7 @@ namespace BattleShipsServer
     public class GameStateController
     {
         private IState currentGameState;
-
+        public IState CurrentGameState { get => currentGameState; set => currentGameState = value; }
 
         private List<User> user = new List<User>();
 

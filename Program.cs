@@ -143,6 +143,10 @@ void OtherHandleMessage(byte[] data, IPEndPoint messageSenderInfo)
                 SendMousePos receiveMousePos = complexMessage["message"].ToObject<SendMousePos>();
                 ReceiveOpponentMousePos(listener, groupEP);
                 break;
+            case MessageType.turnUpdate:
+                TurnUpdate turnUpdate = complexMessage["message"].ToObject<TurnUpdate>();
+                HandleTurns(listener, groupEP, turnUpdate);
+                break;
             default:
                 break;
         }
@@ -333,18 +337,18 @@ void SendMouseInfo(SendMousePos sendMousePos)
 {
     opponentInfo = new SendMousePos() { mousePos = sendMousePos.mousePos, Name = sendMousePos.Name };
 
-   // SendTypedNetworkMessage(listener, groupEP, networkMessage, MessageType.receiveOpponentMouse);
+    // SendTypedNetworkMessage(listener, groupEP, networkMessage, MessageType.receiveOpponentMouse);
 }
 
 void ReceiveOpponentMousePos(UdpClient listener, IPEndPoint groupEP)
 {
-    var turnUpdate = new TurnUpdate()
-    {
-        Name = GameStateController.Instance.User[0].Name,
-        YourTurn = true
-    };
-    GameStateController.Instance.User[0].YourTurn = true;
-    SendTypedNetworkMessage(listener, groupEP, turnUpdate, MessageType.turnUpdate);
+    //var turnUpdate = new TurnUpdate()
+    //{
+    //    Name = GameStateController.Instance.User[0].Name,
+    //    YourTurn = true
+    //};
+   
+    //SendTypedNetworkMessage(listener, groupEP, turnUpdate, MessageType.turnUpdate);
 
     if (opponentInfo != null)
     {
@@ -357,5 +361,17 @@ void ReceiveOpponentMousePos(UdpClient listener, IPEndPoint groupEP)
 
 
     }
-   
+
+}
+
+
+void HandleTurns(UdpClient listener, IPEndPoint groupEP, TurnUpdate turnUpdate)
+{
+    if (GameStateController.Instance.CurrentGameState == TurnHandler.Instance && TurnHandler.Instance.CurrentUser != null)
+    {
+
+        var networkMessage = new TurnUpdate() { Name = TurnHandler.Instance.CurrentUser.Name, YourTurn = TurnHandler.Instance.CurrentUser.YourTurn };
+
+        SendTypedNetworkMessage(listener, groupEP, networkMessage, MessageType.turnUpdate);
+    }
 }

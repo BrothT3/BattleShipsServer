@@ -55,13 +55,14 @@ namespace BattleShipsServer
             else if (boards == 2)
             {
                 GameStateController.Instance.Boards[1] = user.Board;
+                
             }
         }
         public void CheckBoards()
         {
             if (boards == 2)
             {
-                //GameStateController.Instance.ChangeGameState(trin3.instance);                           
+                GameStateController.Instance.ChangeGameState(TurnHandler.Instance);                           
             }
         }
 
